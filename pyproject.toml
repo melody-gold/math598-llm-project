@@ -5,7 +5,7 @@ description = "Building an LLM transforer from scratch."
 authors = [
 	{ name = "Melody Goldanloo", email = "melody_goldanloo@mines.edu" },
 	{ name = "Dishita Sharma", email = "dsharma1@mines.edu" },
-	{ name = , email = },
+	{ name = "Jordyn Graham, email = "jpgraham@mines.edu},
 	{ name = , email = },
 ]
 readme = "README.md"
