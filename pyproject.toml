@@ -7,7 +7,6 @@ authors = [
 	{ name = "Dishita Sharma", email = "dsharma1@mines.edu" },
 	{ name = "Jordyn Graham", email = "jpgraham@mines.edu"},
 	{ name = "Talia Kumar", email = "talia_kumar@mines.edu"},
-	{ name = , email = },
 ]
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
