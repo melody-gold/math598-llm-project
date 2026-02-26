@@ -17,3 +17,18 @@ Talia Kumar's Contributions:
     Py Testing:
         - Created test github action workflow and the first few tests
 
+Jordyn Graham's Contribution: 
+    Note: I did miss the first day of working on this project and joined the 
+    group late on the second work day in class. 
+    1. Tokenizer class 
+        - I primarily worked on the vocab map, encoder, and decoder. To test it, I set up 
+          a test case using the raw data. 
+        - In class I worked collaboratively on this block as to the steps and approach. 
+    2. MLP class
+        - I worked collaboratively on the forward function and overall architecture. Did not 
+          write code but instead provided verbal comments and help.  
+    3. Transformer Block
+         - Worked on in class and did not write any code but instead provided verbal collaboration. 
+    4. Training Loop 
+         - Created training loop function to take in tokenized text and then split it for training 
+           and validation tests. 
