@@ -1,2 +1,19 @@
 Contributions Document:
+I just listed the blocks I contributed to but want to note that what I put down are not things I did by myself, just the things I recall adding to/creating. 
+
+
+Talia Kumar's Contributions:
+    Getting Data Block:
+        - Helped find the data and clean the text on import
+    Tokenize Text Block:
+        - Helped create the init function and the clean text function
+        - Provided (mostly verbal/collaborative) help on the tokenizer and detokenizer
+    Attention Head Block:
+        - Created the M_matrix function
+    Transformer Block Block (lol):
+        - Helped create the init and forward functions
+    Save and Load Modules Block:
+        - Created Save and Load modules functions
+    iPY Testing:
+        - Created iPy Testing Functions
 
