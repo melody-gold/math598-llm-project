@@ -32,3 +32,17 @@ Jordyn Graham's Contribution:
     4. Training Loop 
          - Created training loop function to take in tokenized text and then split it for training 
            and validation tests. 
+
+Dishita Sharma's Contribution:
+    1. Config
+        - I pair programmed with Melody to set up the config portion of the code
+    2. Transformer Block 
+        - Pair programmed with Melody to code the transformer block 
+    3. transformer model class 
+        - Pair programmed to create the tranformer model class 
+        4. Generator function 
+            - I wrote the entire code for the generator function 
+    5. Training Loop   
+        - Helped with training loop - documentation 
+    6. pyproject.toml File 
+        - Helped setup the pyproject.toml file 
