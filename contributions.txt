@@ -14,6 +14,8 @@ Talia Kumar's Contributions:
         - Helped create the init and forward functions
     Save and Load Modules Block:
         - Created Save and Load modules functions
+    MLP:
+        - Collaborated on the logic 
     Py Testing:
         - Created test github action workflow and the first few tests
 
