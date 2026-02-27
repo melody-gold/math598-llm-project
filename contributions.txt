@@ -48,3 +48,14 @@ Dishita Sharma's Contribution:
         - Helped with training loop - documentation 
     6. pyproject.toml File 
         - Helped setup the pyproject.toml file 
+
+Melody Goldanloo's Contribution:
+    1. Set up GitHub repo + Notebook
+        - I have been writing all of the LaTeX and markdown in the notebook
+        - Adding necessary documentation to repo: readme, toml,
+    2. Config and Tranformer Block
+        - pair programmed with Dishita
+    3. Positional Embedding
+        - Set that up 
+    4. Debugged and got the training loop running after it was implemented
+        - there were a lot of dimension mismatch issues that I had to fix
