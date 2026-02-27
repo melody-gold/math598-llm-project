@@ -116,9 +116,11 @@ def test_generate_returns_longer_sequence(small_config, model):
     assert isinstance(result, str), "generator() should return a string"
     assert len(result) >= len(seed), "generated output should be at least as long as the seed"
 
+
 # TODO: add these tests once the corresponding code is fixed / implemented
 # - test_train_loop_two_epochs: call train_loop(..., epochs=2) from train.py
-# - test_save_and_load_model: call save_model() then load_model() and verify that the reloaded model produces identical outputs to the original.
+# - test_save_and_load_model: call save_model() then load_model() and verify that the reloaded model produces 
+# identical outputs to the original.
 
 '''
 create a config
@@ -129,4 +131,3 @@ check that it didn't creash
 how many iterations (2)
 have a few models in the notebook to show what the outputs have been
 '''
-
