@@ -6,85 +6,29 @@ Run locally with: pytest tests/test_transformer.py -v
 import pytest
 import torch
 import torch.nn as nn
-from dataclasses import dataclass
 
-# Minimal re-definitions so tests are self-contained.
+from config import Config
+from model import MLP, AttentionHead, TransformerBlock, transformer as Transformer
 
-
-@dataclass
-class Config:
-    d_model: int
-    d_vocab: int
-    d_hidden: int
-    n_layers: int
-
-
-class MLP(nn.Module):
-    def __init__(self, config: Config):
-        super().__init__()
-        self.fc1 = nn.Linear(config.d_model, config.d_hidden)
-        self.fc2 = nn.Linear(config.d_hidden, config.d_model)
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        return self.fc2(self.relu(self.fc1(x)))
-
-
-class AttentionHead(nn.Module):
-    def __init__(self, config: Config):
-        super().__init__()
-        self.W_q = nn.Linear(config.d_model, config.d_model, bias=False)
-        self.W_k = nn.Linear(config.d_model, config.d_model, bias=False)
-        self.W_v = nn.Linear(config.d_model, config.d_model, bias=False)
-        self.scale = config.d_model ** -0.5
-
-    def forward(self, x):
-        Q, K, V = self.W_q(x), self.W_k(x), self.W_v(x)
-        scores = (Q @ K.transpose(-2, -1)) * self.scale
-        attn = torch.softmax(scores, dim=-1)
-        return attn @ V
-
-
-class TransformerBlock(nn.Module):
-    def __init__(self, config: Config):
-        super().__init__()
-        self.mlp = MLP(config)
-        self.attention = AttentionHead(config)
-
-    def forward(self, x):
-        return x + self.mlp(x) + self.attention(x)
-
-
-class Transformer(nn.Module):
-    def __init__(self, config: Config):
-        super().__init__()
-        self.config = config
-        self.token_embedding = nn.Embedding(config.d_vocab, config.d_model)
-        self.blocks = nn.ModuleList([TransformerBlock(config) for _ in range(config.n_layers)])
-
-    def forward(self, x):
-        x = self.token_embedding(x)
-        for block in self.blocks:
-            x = block(x)
-        return x @ self.token_embedding.weight.T
 
 # Fixtures
 
-
 @pytest.fixture
 def small_config():
-    return Config(d_model=16, d_vocab=50, d_hidden=32, n_layers=2)
+    return Config(d_model=16, d_vocab=50, d_hidden=32, n_layers=2,
+                  n_context=8, n_context_max=8)
 
 
 @pytest.fixture
 def model(small_config):
     return Transformer(small_config)
 
-
 # Config tests
 
+
 def test_config_fields():
-    cfg = Config(d_model=64, d_vocab=100, d_hidden=128, n_layers=4)
+    cfg = Config(d_model=64, d_vocab=100, d_hidden=128, n_layers=4,
+                 n_context=16, n_context_max=16)
     assert cfg.d_model == 64
     assert cfg.d_vocab == 100
     assert cfg.d_hidden == 128
@@ -93,24 +37,16 @@ def test_config_fields():
 
 # MLP tests
 
+
 def test_mlp_output_shape(small_config):
     mlp = MLP(small_config)
-    x = torch.randn(5, small_config.d_model)       # (seq_len, d_model)
+    x = torch.randn(5, small_config.d_model)
     out = mlp(x)
     assert out.shape == x.shape, "MLP must preserve (seq_len, d_model) shape"
 
 
 # AttentionHead tests
 
-def test_attention_output_shape(small_config):
-    attn = AttentionHead(small_config)
-    seq_len = 8
-    x = torch.randn(seq_len, small_config.d_model)
-    out = attn(x)
-    assert out.shape == x.shape, "Attention must preserve (seq_len, d_model) shape"
-
-
-# TransformerBlock tests
 
 def test_transformer_block_output_shape(small_config):
     block = TransformerBlock(small_config)
@@ -118,3 +54,80 @@ def test_transformer_block_output_shape(small_config):
     out = block(x)
     assert out.shape == x.shape
 
+# Integration Tests
+
+
+def test_model_creation_does_not_crash(small_config):
+    """Just building the model should not raise."""
+    model = Transformer(small_config)
+    assert model is not None
+
+
+def test_forward_pass_output_shape(small_config, model):
+    """Forward pass should return (seq_len, d_vocab) logits."""
+    seq_len = small_config.n_context
+    x = torch.randint(0, small_config.d_vocab, (seq_len,))
+    out = model(x)
+    assert out.shape == (seq_len, small_config.d_vocab), (
+        f"Expected ({seq_len}, {small_config.d_vocab}), got {out.shape}"
+    )
+
+
+def test_forward_pass_no_nan(small_config, model):
+    """Logits should not contain NaN or Inf after a forward pass."""
+    x = torch.randint(0, small_config.d_vocab, (small_config.n_context,))
+    out = model(x)
+    assert not torch.isnan(out).any(), "NaN in model output"
+    assert not torch.isinf(out).any(), "Inf in model output"
+
+
+def test_two_training_steps_do_not_crash(small_config, model):
+    """Two manual gradient-update steps should run without error."""
+    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
+    criterion = torch.nn.CrossEntropyLoss()
+
+    seq_len = small_config.n_context
+    losses = []
+
+    model.train()
+    for _ in range(2):
+        x = torch.randint(0, small_config.d_vocab, (seq_len,))
+        y = torch.randint(0, small_config.d_vocab, (seq_len,))
+
+        optimizer.zero_grad()
+        logits = model(x)                        # (seq_len, d_vocab)
+        loss = criterion(logits, y)
+        loss.backward()
+        optimizer.step()
+
+        losses.append(loss.item())
+        assert not torch.isnan(loss), "Loss became NaN during training"
+
+    assert len(losses) == 2
+
+
+def test_generate_returns_longer_sequence(small_config, model):
+    """generator() should return a string longer than the seed text."""
+    seed = "hello"
+    num_new = 5
+    # generator needs raw_text to build the tokenizer vocab; we fake a small corpus
+    fake_corpus = "abcdefghijklmnopqrstuvwxyz .!?"
+    result = model.generator(num_tokens=num_new, input_text=seed, raw_text=fake_corpus)
+    assert isinstance(result, str), "generator() should return a string"
+    assert len(result) >= len(seed), "generated output should be at least as long as the seed"
+
+
+# TODO: add these tests once the corresponding code is fixed / implemented
+# - test_train_loop_two_epochs: call train_loop(..., epochs=2) from train.py
+# - test_save_and_load_model: call save_model() then load_model() and verify that the reloaded model produces 
+# identical outputs to the original.
+
+'''
+create a config
+create model
+call train
+call generate
+check that it didn't creash
+how many iterations (2)
+have a few models in the notebook to show what the outputs have been
+'''
