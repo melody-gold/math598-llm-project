@@ -118,3 +118,14 @@ def test_transformer_block_output_shape(small_config):
     out = block(x)
     assert out.shape == x.shape
 
+
+'''
+create a config
+create model
+call train
+call generate
+check that it didn't creash
+how many iterations (2)
+have a few models in the notebook to show what the outputs have been
+'''
+
