@@ -43,6 +43,9 @@ Documentation
 #### contributions.txt
 Defines everyones contributions 
 
+#### writeup.txt
+Text file with design choices and challenges 
+
 #### tests:
 pytests defined in two files:
 ##### conftest.py and test_transformer.py
