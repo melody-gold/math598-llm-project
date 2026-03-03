@@ -60,18 +60,17 @@ or you can use SSH
 ```bash 
 git clone git@github.com:melody-gold/math598-llm-project.git
 ```
-2. Set up Python Environment:
-```bash 
-python -m venv .venv
-source .venv/bin/activate
-uv sync
-```
-3. Run Code by running the Jupyter Notebook called transformer.ipynb
+2. Toml 
 
-4. Run Tests (Optional)
+3. Run Tests
 ```bash 
 pytest
 ```
+
+4. Run main.py for results of untrained versus trained model. 
+
+4. Run transformer.ipynb for training loss plot. 
+
 
 ### Contributions
 Everyone's contributions are indicated in contributions.txt. please refer to it for contributions. 
