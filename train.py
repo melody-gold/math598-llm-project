@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
 
 from tokenizer import Tokenizer
 from model import transformer
@@ -8,42 +9,44 @@ from model import transformer
 
 # training loop
 
-def train_loop(samples, batchsize, model, epochs=10):
-
-    # wrap an iterable to enable easy access to samples
+def train_loop(samples, batchsize, model):
+    # wrap an iterable to enable easy access to samples 
     data_loader = DataLoader(samples, batch_size=batchsize, shuffle=True)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
     criterion = nn.CrossEntropyLoss()
 
-    # if don't need to do a split then use:
+    # if don't need to do a split then use: 
     print("<<<< Training Started >>>>")
-
     model.train()
-    train_losses = []
+    loss_train = 0.0
+    num_batches = len(data_loader)
+    loss_list = []
+    for batch_num, (x, y) in enumerate(data_loader, start=1):
+        optimizer.zero_grad()
+        output = model(x)
+        y = y.long()
 
-    for i in range(epochs):
-        loss_train = 0
-        for x, y in data_loader:
-            optimizer.zero_grad()
-            output = model(x)
-            if y.ndim > 1:
-                y = torch.argmax(y, dim=1)
-            y = y.long()
+        batch, training_len, vocab = output.shape
+        loss = criterion(output.reshape(batch * training_len, vocab), y.reshape(batch * training_len))
 
-            batch, training_len, vocab = output.shape
-
-            loss = criterion(output.view(batch * training_len, vocab), y.view(batch * training_len))
-
-            loss.backward()
-            optimizer.step()
-            loss_train += loss.item()
-        avg_loss = loss_train / len(data_loader)
-        train_losses.append(avg_loss)
-        print(f"Epoch {i +1}: Loss = {loss_train:.4f}")
+        loss.backward()
+        optimizer.step()
+        loss_train += loss.item()
+        loss_list.append(loss.item())
+        
+        if batch_num == 1 or batch_num % 100 == 0 or batch_num == num_batches:
+            print(f"Batch {batch_num}/{num_batches}: Loss = {loss.item():.4f}, Running Avg = {loss_train/batch_num:.4f}")
 
     print("<<<< Training Complete >>>>")
-    return train_losses
+    print(f"Final avg loss: {loss_train/len(data_loader):.4f}")
+
+    plt.plot(loss_list, label="Training Loss")
+    plt.xlabel("Batch")
+    plt.ylabel("Loss")
+    plt.title("Loss Curve")
+    plt.legend()
+    plt.show()
 
 
 def save_model(model, tokens, config, tokenizer, path="my_first_transformer.pt"):
