@@ -34,6 +34,10 @@ Jordyn Graham's Contribution:
     4. Training Loop 
          - Created training loop function to take in tokenized text and then split it for training 
            and validation tests. 
+         - After Melody debugged the training function, I added a plot for the loss function. 
+    5. Writeup.txt File 
+         - Created this file for the final submission and wrote up initial specifically for architecture 
+           design choices and challenges. 
 
 Dishita Sharma's Contribution:
     1. Config
