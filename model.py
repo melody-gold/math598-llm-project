@@ -75,7 +75,7 @@ class transformer(nn.Module):
 
     def forward(self, x: Int[torch.Tensor, "n_context"]) -> Float[torch.Tensor, "n_context d_vocab"]:
         x = self.token_embedding(x)  # converts int d-vector to d-model vector
-        x = x + self.pos_embedding(torch.arange(x.shape[0])) # x = E + P
+        x = x + self.pos_embedding(torch.arange(x.shape[0]))  # x = E + P
         # pos_embedding(x) uses nn.Embedding of torch.arrange(n_context)
         for i in range(self.config.n_layers):
             x = self.transformerblocks[i](x)

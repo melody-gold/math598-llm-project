@@ -8,7 +8,7 @@ from model import transformer
 
 # training loop
 
-def train_loop(samples, batchsize, model):
+def train_loop(samples, batchsize, model, epochs=10):
 
     # wrap an iterable to enable easy access to samples
     data_loader = DataLoader(samples, batch_size=batchsize, shuffle=True)
@@ -20,26 +20,30 @@ def train_loop(samples, batchsize, model):
     print("<<<< Training Started >>>>")
 
     model.train()
-    loss_train = 0
-    for x, y in data_loader:
-        optimizer.zero_grad()
-        output = model(x)
-        if y.ndim > 1:
-            y = torch.argmax(y, dim=1)
-        y = y.long()
+    train_losses = []
 
-        batch, training_len, vocab = output.shape
+    for i in range(epochs):
+        loss_train = 0
+        for x, y in data_loader:
+            optimizer.zero_grad()
+            output = model(x)
+            if y.ndim > 1:
+                y = torch.argmax(y, dim=1)
+            y = y.long()
 
-        loss = criterion(output.view(batch * training_len, vocab), y.view(batch * training_len))
+            batch, training_len, vocab = output.shape
 
-        loss.backward()
-        optimizer.step()
+            loss = criterion(output.view(batch * training_len, vocab), y.view(batch * training_len))
 
-        loss_train += loss.item()
-
+            loss.backward()
+            optimizer.step()
+            loss_train += loss.item()
+        avg_loss = loss_train / len(data_loader)
+        train_losses.append(avg_loss)
         print(f"Epoch {i +1}: Loss = {loss_train:.4f}")
 
     print("<<<< Training Complete >>>>")
+    return train_losses
 
 
 def save_model(model, tokens, config, tokenizer, path="my_first_transformer.pt"):
