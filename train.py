@@ -10,13 +10,13 @@ from model import transformer
 # training loop
 
 def train_loop(samples, batchsize, model):
-    # wrap an iterable to enable easy access to samples 
+    # wrap an iterable to enable easy access to samples
     data_loader = DataLoader(samples, batch_size=batchsize, shuffle=True)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
     criterion = nn.CrossEntropyLoss()
 
-    # if don't need to do a split then use: 
+    # if don't need to do a split then use:
     print("<<<< Training Started >>>>")
     model.train()
     loss_train = 0.0
@@ -34,12 +34,12 @@ def train_loop(samples, batchsize, model):
         optimizer.step()
         loss_train += loss.item()
         loss_list.append(loss.item())
-        
-        if batch_num == 1 or batch_num % 100 == 0 or batch_num == num_batches:
-            print(f"Batch {batch_num}/{num_batches}: Loss = {loss.item():.4f}, Running Avg = {loss_train/batch_num:.4f}")
 
-    #print("<<<< Training Complete >>>>")
-    #print(f"Final avg loss: {loss_train/len(data_loader):.4f}")
+        if batch_num == 1 or batch_num % 100 == 0 or batch_num == num_batches:
+            print(f"Batch {batch_num}/{num_batches}: Loss= {loss.item():.4f}, Running Avg = {loss_train/batch_num:.4f}")
+
+    # print("<<<< Training Complete >>>>")
+    # print(f"Final avg loss: {loss_train/len(data_loader):.4f}")
 
     plt.plot(loss_list, label="Training Loss")
     plt.xlabel("Batch")
@@ -48,13 +48,13 @@ def train_loop(samples, batchsize, model):
     plt.legend()
     plt.savefig("loss_curve.png")
     return loss_list
-    
+
 
 def save_model(model, tokens, config, tokenizer, path="my_first_transformer.pt"):
     torch.save({
         "model_state": model.state_dict(),
-        "config": config,                   
-        "vocab": tokenizer.encode,          
+        "config": config,
+        "vocab": tokenizer.encode,
     }, path)
     # print(f"Model saved to {path}")
 
@@ -63,7 +63,7 @@ def load_model(path="my_first_transformer.pt"):
     load_in = torch.load(path, weights_only=False)
     config = load_in["config"]
     model_loaded = transformer(config)
-    model_loaded.load_state_dict(load_in["model_state"]) 
+    model_loaded.load_state_dict(load_in["model_state"])
 
     tokenizer = Tokenizer.__new__(Tokenizer)
     tokenizer.encode = load_in["vocab"]

@@ -15,8 +15,8 @@ class Tokenizer:
             self.decode[i] = chars
 
         # sanity check
-        #print("Vocab chars:", self.chars)
-        #print("Vocab size:", self.vocab_size)
+        # print("Vocab chars:", self.chars)
+        # print("Vocab size:", self.vocab_size)
 
     # simplify
     # all letters lowercase
@@ -30,7 +30,7 @@ class Tokenizer:
 
     # encoder
     def tokenize(self, text):
-        # will update words to nums with vocab map 
+        # will update words to nums with vocab map
         cleaned = self.clean_text(text)
 
         tokens = []
@@ -39,10 +39,10 @@ class Tokenizer:
             if char in self.encode:
                 tokens.append(self.encode[char])
 
-        #print("Encoded tokens:", tokens)
+        # print("Encoded tokens:", tokens)
         return tokens
 
-    # decoder 
+    # decoder
     def detokenize(self, tokens):
         # inverse of tokenize (nums to words )
         words = []
@@ -51,6 +51,6 @@ class Tokenizer:
                 words.append(self.decode[id])
 
         final = "".join(words)
-        #print("Decoded text:", final)
+        # print("Decoded text:", final)
 
         return final
