@@ -4,80 +4,65 @@
 
 We have implemented a transformer from scratch using the PyTorch python library. 
 
-### In this Repository:
-#### transformer.ipynb 
-Run jupyter Notebook 
+## Quickstart
 
-### Broken functionality into .py files for testing purposes:
-
-#### config.py
-Configurations class 
-
-#### dataset.py 
-Class to help load book dataset with helper functions
-
-#### main.py
-Main to pull everything together
-
-#### model.py
-Code for transformer, MLP, attention Head, and the transformer Block 
-
-#### tokenizer.py
-Tokenizer implementation
-
-#### train.py
-Code for training loop
-
-#### train.py
-Code for training loop
-
-#### .gitgnore
-Specifies what to exclude when committing to repository
-
-#### pyproject.toml
-Defined dependencies and other necessary infromation to run succesfully
-
-#### README.md
-Documentation 
-
-#### contributions.txt
-Defines everyones contributions 
-
-#### writeup.txt
-Text file with design choices and challenges 
-
-#### tests:
-pytests defined in two files:
-##### conftest.py and test_transformer.py
-
-### Running the Code:
-1. Clone repository 
-Using https
-```bash 
-git clone https://github.com/melody-gold/math598-llm-project.git 
+```bash
+# 1. Clone the repository
+git clone https://github.com/melody-gold/math598-llm-project.git
+cd math598-llm-project
 ```
-or you can use SSH 
-```bash 
-git clone git@github.com:melody-gold/math598-llm-project.git
-```
-2. All dependencies are located in pyproject.toml, run 
-```bash 
+(or use ssh)
+``` bash
+# 2. Install dependencies
 uv sync
-```
 
-3. Run Tests
-```bash 
+# 3. Run tests
 pytest
+
+# 4. Train the model and generate text
+uv run main.py
 ```
 
-4. Run main.py for results of untrained versus trained model. 
-
-4. Run transformer.ipynb for training loss plot. 
+Running `main.py` will automatically download the dataset, print untrained and trained model generations, save a loss curve to `loss_curve.png`, and save results to `results.txt`. No manual data download is required.
 
 
-### Contributions
-Everyone's contributions are indicated in contributions.txt. please refer to it for contributions. 
+### In this Repository:
+| `main.py` | Entry point — runs the full pipeline end to end |
+| `model.py` | `MLP`, `AttentionHead`, `TransformerBlock`, and `transformer` classes |
+| `config.py` | `Config` dataclass for all model hyperparameters |
+| `tokenizer.py` | Character-level tokenizer with encode/decode |
+| `dataset.py` | `Book_Dataset` — loads and tokenizes the text corpus |
+| `train.py` | Training loop, model save/load utilities |
+| `transformer.ipynb` | Notebook with markdown writeup, training runs, and output cells |
+| `conftest.py` | pytest path setup |
+| `test_transformer.py` | Unit and integration tests |
+| `pyproject.toml` | Dependencies and project metadata |
+| `contributions.md` | Individual contributions by group member |
 
-### Results
-TO DO
 
+## Dataset
+
+The model is trained on a book sourced from [Project Gutenberg](https://www.gutenberg.org/files/67098/67098-0.txt), downloaded automatically at runtime. The first 500,000 characters starting from Chapter I are used. The dataset is fetched and preprocessed entirely in `main.py` — no manual download step is needed.
+
+
+## Results
+Model parameter count: 1,600,256
+Training time: 185.5s
+Final avg loss: 2.6863
+
+UNTRAINED MODEL GENERATION
+Seed: 'the captain said'
+Output:
+the captain saidv?l!æzacæjx?r.bqksj.oyc?agzyuenjgayllqit wglygytqpnu?.mc?. y!rb!!ltpvl!xgzqqhbzwnqc??o.arvæhwcqve ?v
+
+TRAINED MODEL GENERATION
+Seed: 'the captain said'
+Output:
+the captain said t os iyo ad le angun tthid wile toun athignd.ind retto heral suf thoukid arigle uis acocohire?ang b
+
+Loss Plot:
+
+![alt text](math598-llm-project/loss_curve.png)
+
+Contributions:
+See contributions.md

@@ -38,32 +38,38 @@ def train_loop(samples, batchsize, model):
         if batch_num == 1 or batch_num % 100 == 0 or batch_num == num_batches:
             print(f"Batch {batch_num}/{num_batches}: Loss = {loss.item():.4f}, Running Avg = {loss_train/batch_num:.4f}")
 
-    print("<<<< Training Complete >>>>")
-    print(f"Final avg loss: {loss_train/len(data_loader):.4f}")
+    #print("<<<< Training Complete >>>>")
+    #print(f"Final avg loss: {loss_train/len(data_loader):.4f}")
 
     plt.plot(loss_list, label="Training Loss")
     plt.xlabel("Batch")
     plt.ylabel("Loss")
     plt.title("Loss Curve")
     plt.legend()
-    plt.show()
-
+    plt.savefig("loss_curve.png")
+    return loss_list
+    
 
 def save_model(model, tokens, config, tokenizer, path="my_first_transformer.pt"):
     torch.save({
         "model_state": model.state_dict(),
         "config": config,                   
-        "vocab": tokenizer.vocab,          
+        "vocab": tokenizer.encode,          
     }, path)
-    print(f"Model saved to {path}")
+    # print(f"Model saved to {path}")
 
 
 def load_model(path="my_first_transformer.pt"):
-    load_in = torch.load(path)
+    load_in = torch.load(path, weights_only=False)
     config = load_in["config"]
     model_loaded = transformer(config)
+    model_loaded.load_state_dict(load_in["model_state"]) 
 
-    tokenizer = Tokenizer(None)
-    tokenizer.vocab = load_in["vocab"]
+    tokenizer = Tokenizer.__new__(Tokenizer)
+    tokenizer.encode = load_in["vocab"]
+    tokenizer.decode = {v: k for k, v in load_in["vocab"].items()}
+    tokenizer.chars = sorted(tokenizer.encode.keys())
+    tokenizer.vocab_size = len(tokenizer.encode)
+
     print(f"Model loaded from {path}")
     return model_loaded, tokenizer, config

@@ -24,27 +24,40 @@ class AttentionHead(nn.Module):
         super().__init__()
         self.config = config
         # weights (use nn.parameter) to create a matrix to track gradients
-        self.wqk = nn.Parameter(torch.randn(config.d_model, config.d_model))
-        self.wov = nn.Parameter(torch.randn(config.d_model, config.d_model))
+        self.wqk = nn.Parameter(torch.randn(config.d_model, config.d_model) * 0.02)
+        self.wov = nn.Parameter(torch.randn(config.d_model, config.d_model) * 0.02)
 
         # Create M Matrix
-    def M_matrix(self, n):
+    def M_matrix(self, n, device=None):
         # matrix with 0 at and below the diagonal and -inf above the diagonal
-        M = torch.ones((n, n))
+        M = torch.ones((n, n), device=device)
         M = torch.triu(M, diagonal=1)
         M = M.masked_fill(M == 1, float('-inf'))
-        print(M)
+        # print(M)
         return M
 
-    def forward(self, x: Float[torch.Tensor, "* d_model"]) -> Float[torch.Tensor, "* d_model"]:
-        # use weights to compute A⨉
-        # X as input: n_seq by d_model
-        n_seq = x.shape[0]
-        M = self.M_matrix(n_seq)
-        attention_pattern = x @ self.wqk @ x.T + M
-        attention_of_X = torch.softmax(attention_pattern, dim=-1) @ x @ self.wov
+    def forward(self, x: Float[torch.Tensor, "* seq d_model"]) -> Float[torch.Tensor, "* seq d_model"]:
+        # x can be (seq, d_model) or (batch, seq, d_model)
+        is_batched = x.dim() == 3
 
-        return attention_of_X
+        if not is_batched:
+            x = x.unsqueeze(0)  # -> (1, seq, d_model)
+
+        batch, n_seq, d_model = x.shape
+        M = self.M_matrix(n_seq, x.device)  # (seq, seq)
+
+        # attention pattern: (batch, seq, seq)
+        # x @ wqk -> (batch, seq, d_model), then @ x.transpose -> (batch, seq, seq)
+        attn = (x @ self.wqk) @ x.transpose(-2, -1) + M
+        attn = torch.softmax(attn, dim=-1)
+
+        # (batch, seq, seq) @ (batch, seq, d_model) -> (batch, seq, d_model)
+        out = attn @ x @ self.wov
+
+        if not is_batched:
+            out = out.squeeze(0)  # -> (seq, d_model)
+
+        return out
 
 
 class TransformerBlock(nn.Module):
@@ -55,13 +68,10 @@ class TransformerBlock(nn.Module):
         self.mlp = MLP(config)
         self.attention = AttentionHead(config)
 
-    def forward(self, x: Float[torch.Tensor, "* d_model"]) -> Float[torch.Tensor, "* d_model"]:
-        # output = x + mlp(x) + attentionhead(x)
-        output_x = x + self.mlp(x) + self.attention(x)
-        # x = self.ln(x_1)
-        # x = self.ln(x_2)
-
-        return output_x
+    def forward(self, x):
+        x = x + self.attention(x)
+        x = x + self.mlp(x)
+        return x
 
 
 class transformer(nn.Module):
@@ -72,36 +82,38 @@ class transformer(nn.Module):
         self.pos_embedding = nn.Embedding(config.n_context_max, config.d_model)
         # self.transformerblocks = nn.modules list of transformer blocks
         self.transformerblocks = nn.ModuleList([TransformerBlock(config) for _ in range(config.n_layers)])
+        nn.init.normal_(self.token_embedding.weight, std=0.02)
+        nn.init.normal_(self.pos_embedding.weight, std=0.02)
 
-    def forward(self, x: Int[torch.Tensor, "n_context"]) -> Float[torch.Tensor, "n_context d_vocab"]:
-        x = self.token_embedding(x)  # converts int d-vector to d-model vector
-        x = x + self.pos_embedding(torch.arange(x.shape[0]))  # x = E + P
-        # pos_embedding(x) uses nn.Embedding of torch.arrange(n_context)
-        for i in range(self.config.n_layers):
-            x = self.transformerblocks[i](x)
-        x = x @ self.token_embedding.weight.T  # unembedding 
-        # n_contex long - sequence if ints of length n  - float tneosry by n_model  and output is float tencsosr by d-vocab \n",
-        # d_model to d_vocab transpose or do a lineear map  - unembed nn.linear
-        # dmodel to dvocab
+    def forward(self, x: Int[torch.Tensor, "..."]) -> Float[torch.Tensor, "... d_vocab"]:
+        # x: (seq,) or (batch, seq)
+        is_batched = x.dim() == 2
+        seq_len = x.shape[-1]
 
+        x = self.token_embedding(x)  # (..., seq, d_model)
+        positions = torch.arange(seq_len, device=x.device)
+        x = x + self.pos_embedding(positions)  # broadcasts over batch
+
+        for block in self.transformerblocks:
+            x = block(x)
+
+        x = x @ self.token_embedding.weight.T  # (..., seq, d_vocab)
         return x
 
-    def generator(self, num_tokens=10, input_text="", raw_text=""): 
-        # some text, number of new token, and return esseuquence of text - tokenzise text, sequence of numbers, numbers in model and get probaility, sample probablities, detonize 
-        tokenizer = Tokenizer(raw_text)
-        tokenized_text = tokenizer.tokenize(input_text)
-        input_tensor = torch.tensor(tokenized_text, dtype=torch.long)
-        for i in range(num_tokens):
-            input_tensor = input_tensor[-self.config.n_context_max:]
-            out = self.forward(input_tensor)
-            print("Finished running through forward!")
-            probailities = torch.softmax(out[:, -1], dim=-1)
-            new_token = torch.multinomial(probailities, num_samples=1)
-            new_input_tensor = torch.cat([input_tensor, new_token], dim=-1)
-            input_tensor = new_input_tensor
-        detokenized_text = tokenizer.detokenize(input_tensor.tolist())
-
-        return detokenized_text
+    def generate(self, text: str, tokenizer, max_length: int) -> str: 
+        self.eval()
+        with torch.no_grad():
+            tokenized = tokenizer.tokenize(text)
+            if not tokenized:
+                tokenized = [0]  # fallback if seed has no known chars
+            input_tensor = torch.tensor(tokenized, dtype=torch.long)
+            for _ in range(max_length):
+                ctx = input_tensor[-self.config.n_context_max:]
+                logits = self(ctx)
+                probs = torch.softmax(logits[-1], dim=-1)
+                new_token = torch.multinomial(probs, num_samples=1)
+                input_tensor = torch.cat([input_tensor, new_token], dim=-1)
+        return tokenizer.detokenize(input_tensor.tolist())
 
 # use nn.ModuleList for TB seqeunce & MHA (to create a list of TBS)
 # print(f"{x.shape = }") for debugging
