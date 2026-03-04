@@ -23,6 +23,7 @@ dependencies = [
 	# pytorch and transformers
 	"torch",
 	"torchvision",
+	"requests",
 	"jaxtyping",
 	"transformer_lens",
 	# custom utilities
