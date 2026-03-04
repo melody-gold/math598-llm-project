@@ -17,7 +17,10 @@ I just listed the blocks I contributed to but want to note that what I put down 
 6. MLP:
     - Collaborated on the logic 
 7. Py Testing:
-    - Created test github action workflow and the first few tests
+    - Created test github action workflow and all of the tests
+8. main.py:
+    - Created everything inside of main.py
+9. Edit final version of transformer.ipynb
 
 #### Jordyn Graham's Contribution: 
 Note: I did miss the first day of working on this project and joined the group late on the second work day in class. 

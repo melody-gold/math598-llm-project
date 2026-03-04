@@ -62,7 +62,7 @@ the captain said t os iyo ad le angun tthid wile toun athignd.ind retto heral su
 
 Loss Plot:
 
-![alt text](math598-llm-project/loss_curve.png)
+![alt text](loss_curve.png)
 
 Contributions:
 See contributions.md
