@@ -54,12 +54,21 @@ Note: I did miss the first day of working on this project and joined the group l
 8. README.md
 
 #### Melody Goldanloo's Contribution:
-1. Set up GitHub repo + Notebook
-    - I have been writing all of the LaTeX and markdown in the notebook
-    - Adding necessary documentation to repo: readme, toml,
-2. Config and Tranformer Block
-    - pair programmed with Dishita
-3. Positional Embedding
-    - Set that up 
-4. Debugged and got the training loop running after it was implemented
-    - there were a lot of dimension mismatch issues that I had to fix
+1. Repo Setup + Notebook Documentation
+    - Set up the GitHub repository and project notebook
+    - Wrote all of the LaTeX/markdown model components in the notebook
+3. Implemented the MLP class
+    - Pair programmed with Talia and Jordyn
+4. Implemented attention head and transformer block classes
+    - Forward function, tensor math, and weights — pair programmed
+5. Implemented the initial transformer forward and config
+    - Pair programmed with Dishita
+6. Added and integrated positional embedding
+7. Training Loop Debugging
+    - Debugged training loop after implementation
+    - Fixed tensor dimension mismatch issues across all model components
+    - Cleaned up logging/print statements during training
+8. Batching Implementation
+    - Implemented batching for the training process
+9. Project Configuration
+    - Updated config and metadata files (readme and toml)
