@@ -9,7 +9,6 @@ from train import train_loop, save_model
 
 
 def main():
-    # ── 1. Fetch dataset ─────────────────────────────────────────────────────
     print("=" * 60)
     print("Downloading dataset from Project Gutenberg...")
     url = "https://www.gutenberg.org/files/67098/67098-0.txt"
@@ -26,7 +25,6 @@ def main():
     raw_text = content_area[chapter_idx:100_000]
     print(f"Dataset loaded: {len(raw_text):,} characters")
 
-    # ── 2. Build dataset and config ──────────────────────────────────────────
     CONTEXT_LEN = 64
     dataset = Book_Dataset(raw_text, train_len=CONTEXT_LEN)
     tokenizer = dataset.tokenizer  # reuse this everywhere — vocab is fixed
@@ -44,7 +42,6 @@ def main():
     param_count = sum(p.numel() for p in model.parameters())
     print(f"Model parameter count: {param_count:,}")
 
-    # ── 3. Untrained generation ──────────────────────────────────────────────
     print("\n" + "=" * 60)
     print("UNTRAINED MODEL GENERATION")
     print("=" * 60)
@@ -53,7 +50,6 @@ def main():
     print(f"Seed : '{seed}'")
     print(f"Output:\n{untrained_output}")
 
-    # ── 4. Train ─────────────────────────────────────────────────────────────
     print("\n" + "=" * 60)
     print("TRAINING")
     print("=" * 60)
@@ -62,7 +58,6 @@ def main():
     elapsed = time.time() - t0
     print(f"Training time: {elapsed:.1f}s")
 
-    # ── 5. Trained generation ────────────────────────────────────────────────
     print("\n" + "=" * 60)
     print("TRAINED MODEL GENERATION")
     print("=" * 60)
@@ -70,7 +65,6 @@ def main():
     print(f"Seed : '{seed}'")
     print(f"Output:\n{trained_output}")
 
-    # ── 6. Save results ──────────────────────────────────────────────────────
     with open("results.txt", "w") as f:
         f.write(f"Model parameter count: {param_count:,}\n")
         f.write(f"Training time: {elapsed:.1f}s\n")
@@ -84,7 +78,6 @@ def main():
     print("\nResults saved to results.txt")
     print("Loss curve saved to loss_curve.png")
 
-    # ── 7. Save model ────────────────────────────────────────────────────────
     save_model(model, None, config, tokenizer, "trained_model.pt")
     print("Model saved to trained_model.pt")
 

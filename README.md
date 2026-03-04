@@ -17,7 +17,7 @@ cd math598-llm-project
 uv sync
 
 # 3. Run tests
-pytest
+uv run pytest
 
 # 4. Train the model and generate text
 uv run main.py
@@ -27,6 +27,8 @@ Running `main.py` will automatically download the dataset, print untrained and t
 
 
 ### In this Repository:
+| File | Description |
+|---|---|
 | `main.py` | Entry point — runs the full pipeline end to end |
 | `model.py` | `MLP`, `AttentionHead`, `TransformerBlock`, and `transformer` classes |
 | `config.py` | `Config` dataclass for all model hyperparameters |
@@ -38,6 +40,7 @@ Running `main.py` will automatically download the dataset, print untrained and t
 | `test_transformer.py` | Unit and integration tests |
 | `pyproject.toml` | Dependencies and project metadata |
 | `contributions.md` | Individual contributions by group member |
+
 
 
 ## Dataset
