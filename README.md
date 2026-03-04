@@ -60,7 +60,10 @@ or you can use SSH
 ```bash 
 git clone git@github.com:melody-gold/math598-llm-project.git
 ```
-2. Toml 
+2. All dependencies are located in pyproject.toml, run 
+```bash 
+uv sync
+```
 
 3. Run Tests
 ```bash 
