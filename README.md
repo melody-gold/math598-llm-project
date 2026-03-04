@@ -2,6 +2,9 @@
 =======================
 ### MATH598C: LLMs
 
+BY:
+    Melody Goldanloo, Fishita Sharma, Jordyn Graham and Talia Kumar
+
 We have implemented a transformer from scratch using the PyTorch python library. 
 
 ## Quickstart

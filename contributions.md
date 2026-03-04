@@ -21,6 +21,8 @@ I just listed the blocks I contributed to but want to note that what I put down 
 8. main.py:
     - Created everything inside of main.py
 9. Edit final version of transformer.ipynb
+10. writeup
+    - Contributed to writeup information
 
 #### Jordyn Graham's Contribution: 
 Note: I did miss the first day of working on this project and joined the group late on the second work day in class. 
